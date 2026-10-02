@@ -42,7 +42,7 @@ constexpr mods::flow::MessageStyle kPromptStyle =
     kResponseStyle.draw_type(MESSAGE_DRAW_INSTANT).talk_anim(31).face_anim(31);
 
 // Globals
-FlowHandler* g_self;
+FlowHandler* g_flowSelf;
 mods::flow::Graph g_graph;
 std::vector<mods::flow::RegisteredMessage> g_messages;
 std::vector<mods::flow::MessageOverride> g_overrides;
@@ -52,16 +52,16 @@ std::string_view g_shopOptMessage = "You haven't started an\napplication! Please
 std::string_view g_applicationMessage = "You haven't started an\napplication! Let's get yours started!";
 
 static void applicationEventFunc(ModContext*, const FlowEventContext*, void*) {
-    if (!g_self->getConfigHandler()->getApplicationStatus()) {
-        g_self->getConfigHandler()->setProcessApplication(true);
-        g_self->getConfigHandler()->setCvarApplicationStatus(STATUS_ONGOING);
-        g_self->getConfigHandler()->setUpdateFlowFlag(true);
+    if (!g_flowSelf->getConfigHandler()->getApplicationStatus()) {
+        g_flowSelf->getConfigHandler()->setProcessApplication(true);
+        g_flowSelf->getConfigHandler()->setCvarApplicationStatus(STATUS_ONGOING);
+        g_flowSelf->getConfigHandler()->setUpdateFlowFlag(true);
     }
 }
 
 static void openShopEventFunc(ModContext*, const FlowEventContext* event, void* user_data) {
     auto* self = static_cast<FlowHandler*>(user_data);
-    g_self->getUiHandler()->openCarcoShop();    // Test this
+    g_flowSelf->getUiHandler()->openCarcoShop();    // Test this
 }
 
 mods::flow::RegisteredMessage register_message(const mods::flow::MessageBuilder& builder) {
@@ -108,7 +108,7 @@ inline ModResult build_message(uint8_t speaker, std::string_view message, Messag
 }
 
 ModResult FlowHandler::initialize(ConfigHandler* config_handler, UiHandler* ui_handler, ModError* error) {
-    g_self = this;
+    g_flowSelf = this;
     configHandler = config_handler;
     uiHandler = ui_handler;
     updateStatus = STATUS_NOT_UPDATED;

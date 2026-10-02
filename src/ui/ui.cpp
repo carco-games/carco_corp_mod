@@ -2,7 +2,7 @@
 
 IMPORT_SERVICE(UiService, svc_ui);
 
-UiHandler* g_self;
+UiHandler* g_uiSelf;
 UiWindowHandle g_optionsWindow;
 UiWindowHandle g_carcoShopWindow;
 
@@ -24,18 +24,18 @@ void add_toggle(UiElementHandle pane, const char* label, ConfigVarHandle cvar, c
     static_cast<ShopItems_e>(reinterpret_cast<uintptr_t>(user_data))
 
 static void buy(ModContext*, void* user_data) {
-    ConfigVarHandle cvar = (g_self->getConfigHandler()->*unlockedCvarFuncs[GET_ENUM])();
-    std::array<uint16_t, ITEM_COUNT> priceTable = g_self->getConfigHandler()->getPrices();
+    ConfigVarHandle cvar = (g_uiSelf->getConfigHandler()->*unlockedCvarFuncs[GET_ENUM])();
+    std::array<uint16_t, ITEM_COUNT> priceTable = g_uiSelf->getConfigHandler()->getPrices();
     uint16_t price = priceTable[GET_ENUM];
-    if (g_self->getCarcoShop()->checkFunds(price)) {
-        g_self->getCarcoShop()->unlockItem(cvar, price);
-        g_self->getCarcoShop()->checkReturnItem(GET_ENUM);
+    if (g_uiSelf->getCarcoShop()->checkFunds(price)) {
+        g_uiSelf->getCarcoShop()->unlockItem(cvar, price);
+        g_uiSelf->getCarcoShop()->checkReturnItem(GET_ENUM);
     }
 }
 
 static bool isItemBought(ModContext*, void* user_data) {
     ShopItems_e itemID = GET_ENUM;
-    return (g_self->getConfigHandler()->*shopChecks[itemID].unlockedFunc)();
+    return (g_uiSelf->getConfigHandler()->*shopChecks[itemID].unlockedFunc)();
 }
 
 static ModResult buildOptGeneralTab(ModContext*, UiWindowHandle, UiElementHandle left, UiElementHandle, void*, ModError*) {
@@ -46,7 +46,7 @@ static ModResult buildOptGeneralTab(ModContext*, UiWindowHandle, UiElementHandle
     control.label = "Application Status";
     control.help_rml = "You can apply for a CarcoCorp membership by talking to Midna!\nOr you can manually choose your CarcoCorp application status here";
     control.binding = UI_BINDING_CONFIG_VAR;
-    control.config_var = g_self->getConfigHandler()->getCvarApplicationStatus();
+    control.config_var = g_uiSelf->getConfigHandler()->getCvarApplicationStatus();
     control.options = kAppStatusOpts;
     control.option_count = 3;
     add_control(left, control);
@@ -57,15 +57,15 @@ static ModResult buildOptGeneralTab(ModContext*, UiWindowHandle, UiElementHandle
     control.label = "Application Timer";
     control.help_rml = "Amount of time (in milliseconds) a CarcoCorp application takes to process";
     control.binding = UI_BINDING_CONFIG_VAR;
-    control.config_var = g_self->getConfigHandler()->getCvarApplicationTimer();
+    control.config_var = g_uiSelf->getConfigHandler()->getCvarApplicationTimer();
     control.min = 1;
     control.max = 180000;
     add_control(left, control);
 
-    add_toggle(left, "Gameover Fee", g_self->getConfigHandler()->getCvarGameoverPayEnabled(),
+    add_toggle(left, "Gameover Fee", g_uiSelf->getConfigHandler()->getCvarGameoverPayEnabled(),
                "Pay for CarcoCare any time you get a game over. (Cost scales with # of game overs)");
 
-    add_toggle(left, "Price Changing", g_self->getConfigHandler()->getCvarPriceChangeEnabled(),
+    add_toggle(left, "Price Changing", g_uiSelf->getConfigHandler()->getCvarPriceChangeEnabled(),
                "Shop prices change every 5 minutes (by default; timer can be changed)!");
 
     control = UI_CONTROL_DESC_INIT;
@@ -73,12 +73,12 @@ static ModResult buildOptGeneralTab(ModContext*, UiWindowHandle, UiElementHandle
     control.label = "Price Change Timer";
     control.help_rml = "Amount of time (in seconds) that it takes prices to change";
     control.binding = UI_BINDING_CONFIG_VAR;
-    control.config_var = g_self->getConfigHandler()->getCvarPriceChangeTimer();
+    control.config_var = g_uiSelf->getConfigHandler()->getCvarPriceChangeTimer();
     control.min = 1;
     control.max = 999999;
     add_control(left, control);
 
-    add_toggle(left, "Random Returns", g_self->getConfigHandler()->getCvarRndReturnEnabled(),
+    add_toggle(left, "Random Returns", g_uiSelf->getConfigHandler()->getCvarRndReturnEnabled(),
                "Every 10 minutes (by default), there is a 10% chance (by default) for a \nrandom purchase to be returned to CarcoCorp!");
 
     control = UI_CONTROL_DESC_INIT;
@@ -86,7 +86,7 @@ static ModResult buildOptGeneralTab(ModContext*, UiWindowHandle, UiElementHandle
     control.label = "Random Return Chance";
     control.help_rml = "Percentage chance for item to be returned upon check";
     control.binding = UI_BINDING_CONFIG_VAR;
-    control.config_var = g_self->getConfigHandler()->getCvarRndReturnChance();
+    control.config_var = g_uiSelf->getConfigHandler()->getCvarRndReturnChance();
     control.min = 1;
     control.max = 100;
     add_control(left, control);
@@ -96,7 +96,7 @@ static ModResult buildOptGeneralTab(ModContext*, UiWindowHandle, UiElementHandle
     control.label = "Random Return Timer";
     control.help_rml = "How long (in seconds) between random return checks";
     control.binding = UI_BINDING_CONFIG_VAR;
-    control.config_var = g_self->getConfigHandler()->getCvarRndReturnTimer();
+    control.config_var = g_uiSelf->getConfigHandler()->getCvarRndReturnTimer();
     control.min = 1;
     control.max = 999999;
     add_control(left, control);
@@ -105,7 +105,7 @@ static ModResult buildOptGeneralTab(ModContext*, UiWindowHandle, UiElementHandle
 }
 
 #define PYWL_TOGGLE(item, lbl_str, help)                                                        \
-    add_toggle(left, lbl_str, (g_self->getConfigHandler()->*paywallCvarFuncs[item])(), help)
+    add_toggle(left, lbl_str, (g_uiSelf->getConfigHandler()->*paywallCvarFuncs[item])(), help)
 
 
 #define AB_OPT_TAB(name, item, help)                    \
@@ -150,9 +150,9 @@ std::string item_lbls[] = {
 #define ADD_UNLOCK_CONTROL(enum, label_str)                         \
     price_str = item_lbls[enum] + " Price: " +                      \
         std::to_string(                                             \
-            g_self->getConfigHandler()->getPriceChangeEnabled()     \
-                ? g_self->getConfigHandler()->getPrices()[enum]     \
-                : g_self->getConfigHandler()->getBasePrices()[enum] \
+            g_uiSelf->getConfigHandler()->getPriceChangeEnabled()     \
+                ? g_uiSelf->getConfigHandler()->getPrices()[enum]     \
+                : g_uiSelf->getConfigHandler()->getBasePrices()[enum] \
         ) + " Rupees";                                              \
     svc_ui->pane_add_section(mod_ctx, right, price_str.c_str());    \
     control = UI_CONTROL_DESC_INIT;                                 \
@@ -228,11 +228,11 @@ static void onOpenOptionsMenu(ModContext*, void*) {
 
 static void onApply(ModContext*, void*) {
     UiToastDesc desc = UI_TOAST_DESC_INIT;
-    switch (g_self->getConfigHandler()->getApplicationStatus()) {
+    switch (g_uiSelf->getConfigHandler()->getApplicationStatus()) {
         case STATUS_NOT_STARTED:
-            g_self->getConfigHandler()->setProcessApplication(true);
-            g_self->getConfigHandler()->setCvarApplicationStatus(STATUS_ONGOING);
-            g_self->getConfigHandler()->setUpdateFlowFlag(true);
+            g_uiSelf->getConfigHandler()->setProcessApplication(true);
+            g_uiSelf->getConfigHandler()->setCvarApplicationStatus(STATUS_ONGOING);
+            g_uiSelf->getConfigHandler()->setUpdateFlowFlag(true);
             desc.title_rml = "CarcoCorp";
             desc.body_rml = "We've started your membership application!";
             desc.duration_ms = 2500;
@@ -264,7 +264,7 @@ static void onOpenCarcoShop(ModContext*, void*) {
         return;
     }
 
-    if (g_self->getConfigHandler()->getApplicationStatus() != STATUS_FINISHED) {
+    if (g_uiSelf->getConfigHandler()->getApplicationStatus() != STATUS_FINISHED) {
         UiToastDesc desc = UI_TOAST_DESC_INIT;
         desc.title_rml = "CarcoCorp";
         desc.body_rml = "You haven't applied to be a CarcoCorp member!";
@@ -325,7 +325,7 @@ static ModResult buildInitialPanel(ModContext*, UiElementHandle panel, void*, Mo
 }
 
 ModResult UiHandler::initialize(ConfigHandler* config_handler, CarcoShop* carco_shop) {
-    g_self = this;
+    g_uiSelf = this;
     configHandler = config_handler;
     carcoShop = carco_shop;
     UiModsPanelDesc panelDesc = UI_MODS_PANEL_DESC_INIT;

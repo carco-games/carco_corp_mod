@@ -18,10 +18,10 @@
         return mods::set_error(error, result, error_msg);   \
     }
 
-#define CHECK_LOCK(item)                                                \
-    ((g_self->getConfigHandler()->*shopChecks[item].pywlFunc)() &&      \
-     !(g_self->getConfigHandler()->*shopChecks[item].unlockedFunc)() && \
-     g_self->getConfigHandler()->sendLockToast(item)                    \
+#define CHECK_LOCK(self, item)                                          \
+    ((self->getConfigHandler()->*shopChecks[item].pywlFunc)() &&        \
+     !(self->getConfigHandler()->*shopChecks[item].unlockedFunc)() &&   \
+     self->getConfigHandler()->sendLockToast(item)                      \
         ? HOOK_SKIP_ORIGINAL                                            \
         : HOOK_CONTINUE)
 

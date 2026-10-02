@@ -1,7 +1,7 @@
 #include "ability_hooks.hpp"
 #include "d/actor/d_a_alink.h"
 
-AbilityHooksHandler* g_self;
+AbilityHooksHandler* g_abHooksSelf;
 
 DEFINE_HOOK(&daAlink_c::procHorseRideInit, ProcHorseRideInit);
 DEFINE_HOOK(&daAlink_c::procFrontRollInit, ProcFrontRollInit);
@@ -17,11 +17,11 @@ bool g_startWarpTimer = false;
 int64_t g_warpTimer = 0;
 
 HookAction onProcHorseRideInit(ModContext*, void*, void*, void*) {
-    return CHECK_LOCK(AB_HORSE_RIDING);
+    return CHECK_LOCK(g_abHooksSelf, AB_HORSE_RIDING);
 }
 
 HookAction onProcFrontRollInit(ModContext*, void*, void*, void*) {
-    return CHECK_LOCK(AB_ROLL);
+    return CHECK_LOCK(g_abHooksSelf, AB_ROLL);
 }
 
 HookAction onProcCoMetamorphoseInit(ModContext*, void* args, void*, void*) {
@@ -37,11 +37,11 @@ HookAction onProcCoMetamorphoseInit(ModContext*, void* args, void*, void*) {
         g_overrideTransformLock = false;
         return HOOK_CONTINUE;
     }
-    return CHECK_LOCK(AB_TRANSFORM);
+    return CHECK_LOCK(g_abHooksSelf, AB_TRANSFORM);
 }
 
 HookAction onCheckAcceptWarp(ModContext*, void*, void*, void*) {
-    if (CHECK_LOCK(AB_WARP) == HOOK_CONTINUE) {
+    if (CHECK_LOCK(g_abHooksSelf, AB_WARP) == HOOK_CONTINUE) {
         g_overrideTransformLock = true;
         return HOOK_CONTINUE;
     }
@@ -50,7 +50,7 @@ HookAction onCheckAcceptWarp(ModContext*, void*, void*, void*) {
 
 void onExecute(ModContext*, void* args, void*, void*) {
     daAlink_c* link = mods::arg<daAlink_c*>(args, 0);
-    if (CHECK_LOCK(AB_TRANSFORM) != HOOK_CONTINUE) {
+    if (CHECK_LOCK(g_abHooksSelf, AB_TRANSFORM) != HOOK_CONTINUE) {
         if (link->mProcID == daAlink_c::PROC_WARP && g_warpTimer == 0) {
             mods::log::debug("setting warp timer");
             g_overrideTransformLock = true;
@@ -86,16 +86,16 @@ void onExecute(ModContext*, void* args, void*, void*) {
 }
 
 HookAction onProcWolfDigInit(ModContext*, void*, void*, void*) {
-    return CHECK_LOCK(AB_DIG);
+    return CHECK_LOCK(g_abHooksSelf, AB_DIG);
 }
 
 HookAction onOnWolfEyeUp(ModContext*, void*, void*, void*) {
-    return CHECK_LOCK(AB_SENSE);
+    return CHECK_LOCK(g_abHooksSelf, AB_SENSE);
 }
 
 AbilityHooksHandler::AbilityHooksHandler(ConfigHandler* config_handler) {
     configHandler = config_handler;
-    g_self = this;
+    g_abHooksSelf = this;
 }
 
 ModResult AbilityHooksHandler::initialize(ModError* error) {

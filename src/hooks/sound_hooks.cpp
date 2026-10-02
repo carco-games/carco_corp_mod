@@ -6,7 +6,7 @@
 #include "Z2AudioLib/Z2SeqMgr.h"
 #include "Z2AudioLib/Z2SceneMgr.h"
 
-SoundHooksHandler* g_self;
+SoundHooksHandler* g_sndHooksSelf;
 
 // All Sounds
 #ifdef _MSVC_LANG
@@ -63,7 +63,7 @@ HookAction onStartSound(ModContext*, void* args, void*, void*) {
         soundID == Z2SE_D27V_LINK_AH_MDN_FLY || (soundID >= Z2SE_D27V_LINK_FOLLOW_MDN && soundID <= Z2SE_D27V_LINK_LOOKBACK) || soundID == Z2SE_D28V_LINK_LOOK_GNN ||
         (soundID >= Z2SE_D28V_LINK_BACK && soundID <= Z2SE_D28V_LINK_RUMBLE) || (soundID >= Z2SE_D28V_LINK_LOOK_MASK && soundID <= Z2SE_D28V_LINK_COME_HORSE) ||
         (soundID >= Z2SE_D30V_LINK_NOTICE_MDN && soundID <= Z2SE_D30V_LINK_SURPRISE) || soundID == Z2SE_D30V_LINK_LOOKBACK || soundID == Z2SE_LINK_COVER_WATER) {
-        return CHECK_LOCK(SND_LINK_SFX);
+        return CHECK_LOCK(g_sndHooksSelf, SND_LINK_SFX);
     }
 
     // Enemy SFX
@@ -71,7 +71,7 @@ HookAction onStartSound(ModContext*, void* args, void*, void*) {
         (soundID >= Z2SE_EN_WB_V_INANAKI && soundID <= Z2SE_EN_WB_V_RIDE) || (soundID >= Z2SE_EN_SINEWAVE && soundID <= Z2SE_EN_PH_APPEAR) ||
         (soundID == Z2SE_EN_GND_V_DAMAGE_DOWN) || (soundID == Z2SE_EN_HZE_V_ATK_C_RETURN) ||
         (soundID >= Z2SE_EN_MGN_V_TURN && soundID <= Z2SE_EN_KC_V_NAKU)) {
-        return CHECK_LOCK(SND_ENEMY_SFX);
+        return CHECK_LOCK(g_sndHooksSelf, SND_ENEMY_SFX);
     }
 
     // NPC/Creature SFX
@@ -79,25 +79,25 @@ HookAction onStartSound(ModContext*, void* args, void*, void*) {
         (soundID >= Z2SE_POST_V_RUN_HIGH && soundID <= Z2SE_KOSARU_V_DELIGHT) || (soundID >= Z2SE_MK_V_COME_BACK && soundID <= Z2SE_GRN_V_SUMO_FALL_LOSE) ||
         (soundID >= Z2SE_YELIA_V_KYAAA_TRIG && soundID <= Z2SE_D22V_WLF_LONG_BARK) || soundID == Z2SE_GORON_RECOVER || soundID == Z2SE_MIDNA_JUMP ||
         soundID == Z2SE_G_WLF_UNARU) {
-        return CHECK_LOCK(SND_NPC_SFX);
+        return CHECK_LOCK(g_sndHooksSelf, SND_NPC_SFX);
     }
 
     // For all other SFX, just check Environment SFX Lock
-    return CHECK_LOCK(SND_ENV_SFX);
+    return CHECK_LOCK(g_sndHooksSelf, SND_ENV_SFX);
 }
 
 HookAction bgmCheck(ModContext*, void*, void*, void*) {
-    return CHECK_LOCK(SND_BGM);
+    return CHECK_LOCK(g_sndHooksSelf, SND_BGM);
 }
 
 HookAction astCheck(ModContext*, void*, void*, void*) {
-    return CHECK_LOCK(SND_AST);
+    return CHECK_LOCK(g_sndHooksSelf, SND_AST);
 }
 
 HookAction onZ2SoundMgrStartSound(ModContext* mod_ctx, void* args, void* retval, void* user_data) {
     JAISoundID soundID = mods::arg<JAISoundID>(args, 1);
     if (soundID >= 0x2000000) {
-        return CHECK_LOCK(SND_AST);
+        return CHECK_LOCK(g_sndHooksSelf, SND_AST);
     }
 
     return HOOK_CONTINUE;
@@ -105,7 +105,7 @@ HookAction onZ2SoundMgrStartSound(ModContext* mod_ctx, void* args, void* retval,
 
 SoundHooksHandler::SoundHooksHandler(ConfigHandler* config_handler) {
     configHandler = config_handler;
-    g_self = this;
+    g_sndHooksSelf = this;
     soundLockedToastStatus = true;
 }
 

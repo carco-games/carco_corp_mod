@@ -9,7 +9,7 @@
 
 #include <string>
 
-HooksHandler* g_self;
+HooksHandler* g_hooksSelf;
 
 IMPORT_SERVICE(HookService, svc_hook);
 
@@ -35,10 +35,10 @@ inline UiToastDesc* toast_msg(const char* title, uint32_t duration, const char* 
 
 HookAction pay_func(bool enabled_flag, u16 payment_amount, const char* toast_title,
                     const char* insufficient_msg, const char* success_msg) {
-    if (g_self->getRunPayFunc()) {
+    if (g_hooksSelf->getRunPayFunc()) {
         if (enabled_flag) {
-            if (g_self->getPayTimer() == 0) {
-                g_self->setPayTimer(60);
+            if (g_hooksSelf->getPayTimer() == 0) {
+                g_hooksSelf->setPayTimer(60);
             }
 
             u16 rupees = dComIfGs_getRupee();
@@ -69,10 +69,10 @@ HookAction pay_func(bool enabled_flag, u16 payment_amount, const char* toast_tit
 }
 
 static void onRestartInit(ModContext*, void*, void*, void*) {
-    if (g_self->getRunPayFunc()) {
-        if (g_self->getConfigHandler()->getGameoverPayEnabled()) {
-            if (g_self->getPayTimer() == 0) {
-                g_self->setPayTimer(60);
+    if (g_hooksSelf->getRunPayFunc()) {
+        if (g_hooksSelf->getConfigHandler()->getGameoverPayEnabled()) {
+            if (g_hooksSelf->getPayTimer() == 0) {
+                g_hooksSelf->setPayTimer(60);
             }
 
             u16 rupees = dComIfGs_getRupee();
@@ -92,7 +92,7 @@ static void onRestartInit(ModContext*, void*, void*, void*) {
 }
 
 static HookAction onOrderZTalk(ModContext*, void* args, void* retval, void* user_data) {
-    g_self->getFlowHandler()->updateFlow();
+    g_hooksSelf->getFlowHandler()->updateFlow();
     return HOOK_CONTINUE;
 }
 
@@ -112,7 +112,7 @@ ModResult HooksHandler::initialize(ConfigHandler* config_handler, FlowHandler* f
     if (abilityHooksHandler) {
         abilityHooksHandler->initialize(error);
     }
-    g_self = this;
+    g_hooksSelf = this;
     payTimer = 0;
     runPayFunc = true;
 
