@@ -32,5 +32,5 @@ add_mod(carcoCorp
             src/hooks/hooks.cpp
             src/ui/ui.cpp
             src/shop/shop.cpp
-        MOD_JSON mod.json
+        MOD_JSON "${CMAKE_CURRENT_BINARY_DIR}/mod.json"
 )
