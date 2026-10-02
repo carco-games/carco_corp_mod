@@ -7,14 +7,14 @@
 IMPORT_SERVICE(ConfigService, svc_config);
 
 #define GENERAL_CVARS(name, type, default_value)    \
-    ConfigVarHandle g_cvar##name##;
+    ConfigVarHandle g_cvar##name;
 
 #define ITEM_CVARS(name)                    \
     ConfigVarHandle g_cvar##name##Paywall;  \
     ConfigVarHandle g_cvar##name##Unlocked;
 
 #define REGISTER_GENERAL(name, type, default_value) \
-    {#name, default_value, g_cvar##name##},
+    {#name, default_value, g_cvar##name},
 
 #define REGISTER_PAYWALL(name)  \
     {#name "Paywall", true, g_cvar##name##Paywall},
@@ -102,11 +102,11 @@ static constexpr cVarRegistration registrations[] = {
 };
 
 #define MAP_GENERAL_CVARS(name, type, default_value)    \
-    name## = &g_cvar##name##;
+    name = &g_cvar##name;
 
 #define MAP_ITEM_CVARS(name)                    \
     name##Paywall = &g_cvar##name##Paywall;     \
-    ##name##Unlocked = &g_cvar##name##Unlocked;
+    name##Unlocked = &g_cvar##name##Unlocked;
 
 #define BUILD_SHOP_MSG(name, suffix)    \
     #name " " #suffix,

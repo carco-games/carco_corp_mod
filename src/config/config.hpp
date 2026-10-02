@@ -78,25 +78,25 @@
 
 class ConfigHandler {
 public:
-    #define GENERAL_FUNCS(name, type, fallback)                                 \
-        ConfigVarHandle getCvar##name##() { return *##name##; }                 \
-        type get##name##() { return getOption<type>(*##name##, fallback); }     \
-        void setCvar##name##(type value) { setOption<type>(*##name##, value); }
+    #define GENERAL_FUNCS(name, type, fallback)                             \
+        ConfigVarHandle getCvar##name() { return *name; }                   \
+        type get##name() { return getOption<type>(*name, fallback); }       \
+        void setCvar##name(type value) { setOption<type>(*name, value); }
 
     #define PAYWALL_GETTERS(name)                                                       \
-        ConfigVarHandle getCvar##name##Paywall() { return *##name##Paywall; }           \
-        bool get##name##Paywall() { return getOption<bool>(*##name##Paywall, false); }
+        ConfigVarHandle getCvar##name##Paywall() { return *name##Paywall; }             \
+        bool get##name##Paywall() { return getOption<bool>(*name##Paywall, false); }
 
     #define UNLOCKED_GETTERS(name)                                                      \
-        ConfigVarHandle getCvar##name##Unlocked() { return *##name##Unlocked; }         \
-        bool get##name##Unlocked() { return getOption<bool>(*##name##Unlocked, false); }
+        ConfigVarHandle getCvar##name##Unlocked() { return *name##Unlocked; }           \
+        bool get##name##Unlocked() { return getOption<bool>(*name##Unlocked, false); }
 
     #define MEMBER_GENERAL_CVARS(name, type, fallback)  \
-        ConfigVarHandle* ##name;
+        ConfigVarHandle* name;
 
     #define MEMBER_ITEM_CVARS(name)         \
-        ConfigVarHandle* ##name##Paywall;   \
-        ConfigVarHandle* ##name##Unlocked;
+        ConfigVarHandle* name##Paywall;     \
+        ConfigVarHandle* name##Unlocked;
 
     ConfigHandler();
     ModResult initialize(ModError* error);
