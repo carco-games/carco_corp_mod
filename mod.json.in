@@ -1,7 +1,7 @@
 {
-  "id": "com.example.my_mod",
-  "name": "My Mod",
+  "id": "carco_games.carco_corp",
+  "name": "CarcoCorp",
   "version": "@PROJECT_VERSION@",
-  "author": "You",
-  "description": "An example Dusklight mod"
+  "author": "Carco Games",
+  "description": "Hyrule has a new investor..."
 }
